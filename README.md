@@ -20,6 +20,11 @@
 docker-compose up -d
 ```
 
+5. build database
+```
+{{LOCALURL}}api/v2/seed
+```
+
 ## stack
 *    mongodb
 *    nestjs

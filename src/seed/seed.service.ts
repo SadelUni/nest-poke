@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Pokemon } from 'src/pokemon/entities/pokemon.entity';
 import { CreatePokemonDto } from 'src/pokemon/dto/create-pokemon.dto';
+import { AxiosAdapter } from 'src/common/adapters/axios.adapter';
 
 @Injectable()
 export class SeedService {
@@ -14,47 +15,56 @@ export class SeedService {
   constructor(
 
     @InjectModel(Pokemon.name)
-    private readonly pokemonModel: Model<Pokemon>
+    private readonly pokemonModel: Model<Pokemon>,
+
+    private readonly axiosAdapter: AxiosAdapter
 
 
   ) { }
 
   async executeSeed() {
-    const { data } = await this.axios.get<PokeResponse>('https://pokeapi.co/api/v2/pokemon?limit=50')
-    try {
+    await this.pokemonModel.deleteMany({})
 
-      data.results.forEach(async (pokemon) => {
-        const { name, url } = pokemon;
+    const data  = await this.axiosAdapter.get<PokeResponse>('https://pokeapi.co/api/v2/pokemon?limit=50')
 
+    //const insertPromiseArray = [];
 
-
-        const segment = url.split('/');
-        const no = +segment[segment.length - 2]
-
-        const createPokemonDto: CreatePokemonDto = {
-          no,
-          name
-        }
-
-        const currentPoke = await this.pokemonModel.findOne({ no })
-
-        if (createPokemonDto.name != createPokemonDto.name && currentPoke.no != createPokemonDto.no) {
-          await this.pokemonModel.create(createPokemonDto)
-
-        }
+    const insertManyArray: {no: number, name: string}[] = [];
 
 
 
+    data.results.forEach(async (pokemon) => {
+      const { name, url } = pokemon;
 
 
-      })
+
+      const segment = url.split('/');
+      const no = +segment[segment.length - 2]
+
+      const createPokemonDto: CreatePokemonDto = {
+        no,
+        name
+      }
+
+      insertManyArray.push(createPokemonDto)
 
 
 
-    } catch (error) {
-      throw new Error(`Error creating pokemon: ${error}`)
+      // insertPromiseArray.push(this.pokemonModel.create(createPokemonDto))
+      
 
-    }
+
+
+
+
+
+    })
+
+    await this.pokemonModel.insertMany(insertManyArray)
+
+
+
+
 
 
 
