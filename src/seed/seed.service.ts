@@ -68,7 +68,7 @@ export class SeedService {
 
 
 
-    return await this.pokemonModel.find();
+    return 'Seed executed successfully!'
   }
 
 }
