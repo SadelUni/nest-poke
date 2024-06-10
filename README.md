@@ -25,6 +25,13 @@ docker-compose up -d
 {{LOCALURL}}api/v2/seed
 ```
 
+# production build
+1. crear .env de produccion 
+ ```
+.env.prod
+ ```
+2. crear imagen ```docker-compose -f docker-compose.prod.yaml --env-file .env.prod up --build ```
+ 
 ## stack
 *    mongodb
 *    nestjs
